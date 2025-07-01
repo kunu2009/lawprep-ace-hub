@@ -1,31 +1,33 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Square, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { defaultNotes } from "@/lib/data";
+
+const NOTES_KEY = "7klawprep_notes";
 
 const NotesScreen = ({ onBack }) => {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      title: "Constitutional Law - Article 14",
-      content: "Right to equality - State shall not deny any person equality before law or equal protection of laws",
-      subject: "Constitutional Law",
-      date: "2024-01-15"
-    },
-    {
-      id: 2,
-      title: "Contract Law - Consideration",
-      content: "When at the desire of the promisor, promisee has done or abstained from doing something",
-      subject: "Contract Law",
-      date: "2024-01-14"
-    }
-  ]);
-  
+  const [notes, setNotes] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: "", content: "", subject: "" });
+
+  // Load notes from localStorage on mount, preload defaultNotes if none exist
+  useEffect(() => {
+    const saved = localStorage.getItem(NOTES_KEY);
+    if (saved) {
+      setNotes(JSON.parse(saved));
+    } else {
+      setNotes(defaultNotes);
+      localStorage.setItem(NOTES_KEY, JSON.stringify(defaultNotes));
+    }
+  }, []);
+
+  // Save notes to localStorage whenever notes change
+  useEffect(() => {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+  }, [notes]);
 
   const addNote = () => {
     if (newNote.title && newNote.content) {

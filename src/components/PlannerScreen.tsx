@@ -1,20 +1,29 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Calendar, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
+const TASKS_KEY = "7klawprep_tasks";
+
 const PlannerScreen = ({ onBack }) => {
-  const [tasks, setTasks] = useState([
-    { id: 1, text: "Complete Constitutional Law - 20 questions", completed: false, date: "2024-01-15" },
-    { id: 2, text: "Review Contract Law notes", completed: true, date: "2024-01-15" },
-    { id: 3, text: "Practice Criminal Law MCQs", completed: false, date: "2024-01-15" }
-  ]);
-  
+  const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Load tasks from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(TASKS_KEY);
+    if (saved) {
+      setTasks(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
     if (newTask.trim()) {

@@ -1,13 +1,33 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Bookmark, Share2, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+const LIKED_KEY = "7klawprep_flashcard_likes";
+const BOOKMARKED_KEY = "7klawprep_flashcard_bookmarks";
+
 const FlashCardReels = ({ onBack }) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [likedCards, setLikedCards] = useState(new Set());
   const [bookmarkedCards, setBookmarkedCards] = useState(new Set());
+
+  // Load likes/bookmarks from localStorage on mount
+  useEffect(() => {
+    const liked = localStorage.getItem(LIKED_KEY);
+    if (liked) setLikedCards(new Set(JSON.parse(liked)));
+    const bookmarked = localStorage.getItem(BOOKMARKED_KEY);
+    if (bookmarked) setBookmarkedCards(new Set(JSON.parse(bookmarked)));
+  }, []);
+
+  // Save likes to localStorage whenever likedCards changes
+  useEffect(() => {
+    localStorage.setItem(LIKED_KEY, JSON.stringify(Array.from(likedCards)));
+  }, [likedCards]);
+
+  // Save bookmarks to localStorage whenever bookmarkedCards changes
+  useEffect(() => {
+    localStorage.setItem(BOOKMARKED_KEY, JSON.stringify(Array.from(bookmarkedCards)));
+  }, [bookmarkedCards]);
 
   const flashCards = [
     {

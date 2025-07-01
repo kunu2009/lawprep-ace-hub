@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Book, Calendar, Home, List, Square, ArrowRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,44 +8,37 @@ import ResultScreen from "@/components/ResultScreen";
 import NotesScreen from "@/components/NotesScreen";
 import PlannerScreen from "@/components/PlannerScreen";
 import FlashCardReels from "@/components/FlashCardReels";
+import ProgressScreen from "@/components/ProgressScreen";
+import { subjects } from "@/lib/data";
+
+const QUIZ_HISTORY_KEY = "7klawprep_quiz_history";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState("home");
-  const [selectedSubject, setSelectedSubject] = useState("");
-  const [quizData, setQuizData] = useState(null);
-
-  const navigateToSubject = (subject) => {
-    setSelectedSubject(subject);
-    setCurrentScreen("subjects");
-  };
+  const [quizQuestions, setQuizQuestions] = useState(null);
+  const [quizResult, setQuizResult] = useState(null);
 
   const startQuiz = (subject, topic) => {
-    // Sample quiz data - in a real app this would come from a database
-    const sampleQuiz = {
-      subject,
-      topic,
-      questions: [
-        {
-          id: 1,
-          question: "What is the fundamental right to equality enshrined in which article of the Indian Constitution?",
-          options: ["Article 14", "Article 15", "Article 16", "Article 17"],
-          correct: 0
-        },
-        {
-          id: 2,
-          question: "Which case established the basic structure doctrine?",
-          options: ["Maneka Gandhi Case", "Kesavananda Bharati Case", "Minerva Mills Case", "Golaknath Case"],
-          correct: 1
-        }
-      ]
-    };
-    setQuizData(sampleQuiz);
-    setCurrentScreen("quiz");
+    // Find the questions for the selected subject and topic
+    const subjectObj = subjects.find((s) => s.name === subject.name);
+    const topicObj = subjectObj?.topics.find((t) => t.name === topic.name);
+    if (topicObj && topicObj.questions) {
+      setQuizQuestions(topicObj.questions);
+      setCurrentScreen("quiz");
+    }
   };
 
   const showResults = (score, totalQuestions) => {
-    setQuizData({ ...quizData, score, totalQuestions });
+    setQuizResult({ score, totalQuestions });
     setCurrentScreen("results");
+    // Save quiz result to localStorage
+    const history = JSON.parse(localStorage.getItem(QUIZ_HISTORY_KEY) || "[]");
+    history.push({
+      score,
+      totalQuestions,
+      date: new Date().toISOString(),
+    });
+    localStorage.setItem(QUIZ_HISTORY_KEY, JSON.stringify(history));
   };
 
   const renderHomeScreen = () => (
@@ -56,18 +48,6 @@ const Index = () => {
         <div className="text-center mb-8 pt-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">7K LawPrep</h1>
           <p className="text-gray-600">Master MHCET & CLAT</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <Card className="p-4 text-center bg-white/80 backdrop-blur-sm">
-            <div className="text-2xl font-bold text-blue-600">156</div>
-            <div className="text-sm text-gray-600">Questions Solved</div>
-          </Card>
-          <Card className="p-4 text-center bg-white/80 backdrop-blur-sm">
-            <div className="text-2xl font-bold text-green-600">78%</div>
-            <div className="text-sm text-gray-600">Accuracy</div>
-          </Card>
         </div>
 
         {/* Main Actions */}
@@ -151,25 +131,24 @@ const Index = () => {
       {currentScreen === "home" && renderHomeScreen()}
       {currentScreen === "subjects" && (
         <SubjectScreen 
-          onBack={() => setCurrentScreen("home")} 
-          selectedSubject={selectedSubject}
+          onBack={() => setCurrentScreen("home")}
           onStartQuiz={startQuiz}
         />
       )}
       {currentScreen === "flashcards" && (
         <FlashCardReels onBack={() => setCurrentScreen("home")} />
       )}
-      {currentScreen === "quiz" && (
+      {currentScreen === "quiz" && quizQuestions && (
         <QuizScreen 
-          quizData={quizData}
+          questions={quizQuestions}
           onComplete={showResults}
           onBack={() => setCurrentScreen("subjects")}
         />
       )}
-      {currentScreen === "results" && (
+      {currentScreen === "results" && quizResult && (
         <ResultScreen 
-          score={quizData?.score}
-          totalQuestions={quizData?.totalQuestions}
+          score={quizResult.score}
+          totalQuestions={quizResult.totalQuestions}
           onBack={() => setCurrentScreen("home")}
           onRetry={() => setCurrentScreen("quiz")}
         />
@@ -179,6 +158,9 @@ const Index = () => {
       )}
       {currentScreen === "planner" && (
         <PlannerScreen onBack={() => setCurrentScreen("home")} />
+      )}
+      {currentScreen === "progress" && (
+        <ProgressScreen onBack={() => setCurrentScreen("home")} />
       )}
     </>
   );
