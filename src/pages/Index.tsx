@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Book, Calendar, Home, List, Square, ArrowRight } from "lucide-react";
+import { Book, Calendar, Home, List, Square, ArrowRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import SubjectScreen from "@/components/SubjectScreen";
@@ -8,6 +8,7 @@ import QuizScreen from "@/components/QuizScreen";
 import ResultScreen from "@/components/ResultScreen";
 import NotesScreen from "@/components/NotesScreen";
 import PlannerScreen from "@/components/PlannerScreen";
+import FlashCardReels from "@/components/FlashCardReels";
 
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState("home");
@@ -86,6 +87,20 @@ const Index = () => {
           </Button>
 
           <Button 
+            onClick={() => setCurrentScreen("flashcards")} 
+            className="w-full h-16 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white rounded-xl flex items-center justify-between px-6 shadow-lg"
+          >
+            <div className="flex items-center">
+              <Zap className="w-6 h-6 mr-4" />
+              <div className="text-left">
+                <div className="font-semibold">Law Reels</div>
+                <div className="text-sm opacity-90">Quick flashcard learning</div>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+
+          <Button 
             onClick={() => setCurrentScreen("notes")} 
             className="w-full h-16 bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-between px-6 shadow-lg"
           >
@@ -140,6 +155,9 @@ const Index = () => {
           selectedSubject={selectedSubject}
           onStartQuiz={startQuiz}
         />
+      )}
+      {currentScreen === "flashcards" && (
+        <FlashCardReels onBack={() => setCurrentScreen("home")} />
       )}
       {currentScreen === "quiz" && (
         <QuizScreen 
