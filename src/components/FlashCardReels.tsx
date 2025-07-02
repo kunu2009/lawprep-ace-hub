@@ -1,130 +1,65 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Bookmark, Share2, ChevronUp, ChevronDown } from "lucide-react";
+
+import React, { useState } from "react";
+import { ArrowLeft, ChevronUp, ChevronDown, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-const LIKED_KEY = "7klawprep_flashcard_likes";
-const BOOKMARKED_KEY = "7klawprep_flashcard_bookmarks";
+const lawReelsData = [
+  {
+    id: 1,
+    title: "Contract Law Basics",
+    content: "A contract is a legally binding agreement between two or more parties. Key elements: Offer, Acceptance, Consideration, Capacity, and Legality.",
+    category: "Contract Law",
+    color: "from-blue-500 to-purple-600"
+  },
+  {
+    id: 2,
+    title: "Tort Law - Negligence",
+    content: "Negligence requires 4 elements: Duty of Care, Breach of Duty, Causation, and Damages. The plaintiff must prove all elements to succeed.",
+    category: "Tort Law",
+    color: "from-green-500 to-teal-600"
+  },
+  {
+    id: 3,
+    title: "Constitutional Law",
+    content: "The Constitution is the supreme law. Fundamental Rights are enforceable against the state under Articles 12-35 of the Indian Constitution.",
+    category: "Constitutional Law",
+    color: "from-red-500 to-pink-600"
+  },
+  {
+    id: 4,
+    title: "Criminal Law - IPC",
+    content: "Indian Penal Code defines crimes and punishments. Mens rea (guilty mind) and actus reus (guilty act) are essential elements of most crimes.",
+    category: "Criminal Law",
+    color: "from-orange-500 to-yellow-600"
+  },
+  {
+    id: 5,
+    title: "Property Law",
+    content: "Property can be movable or immovable. Transfer of Property Act governs sale, mortgage, lease, and gift of immovable property.",
+    category: "Property Law",
+    color: "from-purple-500 to-indigo-600"
+  }
+];
 
 const FlashCardReels = ({ onBack }) => {
-  const [currentCard, setCurrentCard] = useState(0);
-  const [likedCards, setLikedCards] = useState(new Set());
-  const [bookmarkedCards, setBookmarkedCards] = useState(new Set());
+  const [currentReel, setCurrentReel] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
 
-  // Load likes/bookmarks from localStorage on mount
-  useEffect(() => {
-    const liked = localStorage.getItem(LIKED_KEY);
-    if (liked) setLikedCards(new Set(JSON.parse(liked)));
-    const bookmarked = localStorage.getItem(BOOKMARKED_KEY);
-    if (bookmarked) setBookmarkedCards(new Set(JSON.parse(bookmarked)));
-  }, []);
-
-  // Save likes to localStorage whenever likedCards changes
-  useEffect(() => {
-    localStorage.setItem(LIKED_KEY, JSON.stringify(Array.from(likedCards)));
-  }, [likedCards]);
-
-  // Save bookmarks to localStorage whenever bookmarkedCards changes
-  useEffect(() => {
-    localStorage.setItem(BOOKMARKED_KEY, JSON.stringify(Array.from(bookmarkedCards)));
-  }, [bookmarkedCards]);
-
-  const flashCards = [
-    {
-      id: 1,
-      title: "Article 14 - Right to Equality",
-      content: "The State shall not deny to any person equality before the law or the equal protection of the laws within the territory of India.",
-      category: "Constitutional Law",
-      fact: "This is the foundation of equality in Indian Constitution",
-      color: "bg-gradient-to-br from-blue-500 to-blue-700"
-    },
-    {
-      id: 2,
-      title: "Basic Structure Doctrine",
-      content: "Established in Kesavananda Bharati Case (1973). Parliament cannot alter the basic structure of the Constitution.",
-      category: "Constitutional Law",
-      fact: "This landmark case saved Indian democracy",
-      color: "bg-gradient-to-br from-purple-500 to-purple-700"
-    },
-    {
-      id: 3,
-      title: "Section 375 - Rape Definition",
-      content: "A man commits rape if he has sexual intercourse with a woman against her will, without her consent, or with her consent obtained by fraud.",
-      category: "Criminal Law",
-      fact: "Recently amended to include marital rape exceptions",
-      color: "bg-gradient-to-br from-red-500 to-red-700"
-    },
-    {
-      id: 4,
-      title: "Consideration in Contracts",
-      content: "An agreement without consideration is void. Consideration means something in return - it can be past, present, or future.",
-      category: "Contract Law",
-      fact: "Love and affection is valid consideration between near relatives",
-      color: "bg-gradient-to-br from-green-500 to-green-700"
-    },
-    {
-      id: 5,
-      title: "Negligence - Donoghue v Stevenson",
-      content: "You must take reasonable care to avoid acts which you can reasonably foresee would likely injure your neighbor.",
-      category: "Tort Law",
-      fact: "This case established the modern law of negligence",
-      color: "bg-gradient-to-br from-orange-500 to-orange-700"
-    },
-    {
-      id: 6,
-      title: "Article 32 - Right to Constitutional Remedies",
-      content: "Dr. Ambedkar called it the 'Heart and Soul' of the Constitution. It empowers citizens to approach Supreme Court directly.",
-      category: "Constitutional Law",
-      fact: "This article can never be suspended, even during emergency",
-      color: "bg-gradient-to-br from-indigo-500 to-indigo-700"
-    }
-  ];
-
-  const handleScroll = (direction) => {
-    if (direction === 'up' && currentCard > 0) {
-      setCurrentCard(currentCard - 1);
-    } else if (direction === 'down' && currentCard < flashCards.length - 1) {
-      setCurrentCard(currentCard + 1);
-    }
+  const handlePrevious = () => {
+    setCurrentReel((prev) => (prev > 0 ? prev - 1 : lawReelsData.length - 1));
+    setIsFlipped(false);
   };
 
-  const toggleLike = () => {
-    const newLiked = new Set(likedCards);
-    if (newLiked.has(currentCard)) {
-      newLiked.delete(currentCard);
-    } else {
-      newLiked.add(currentCard);
-    }
-    setLikedCards(newLiked);
+  const handleNext = () => {
+    setCurrentReel((prev) => (prev < lawReelsData.length - 1 ? prev + 1 : 0));
+    setIsFlipped(false);
   };
 
-  const toggleBookmark = () => {
-    const newBookmarked = new Set(bookmarkedCards);
-    if (newBookmarked.has(currentCard)) {
-      newBookmarked.delete(currentCard);
-    } else {
-      newBookmarked.add(currentCard);
-    }
-    setBookmarkedCards(newBookmarked);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowUp') {
-      handleScroll('up');
-    } else if (e.key === 'ArrowDown') {
-      handleScroll('down');
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentCard]);
-
-  const currentFlashCard = flashCards[currentCard];
+  const currentData = lawReelsData[currentReel];
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white relative overflow-hidden">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
         <Button
@@ -132,103 +67,87 @@ const FlashCardReels = ({ onBack }) => {
           variant="ghost"
           className="p-2 hover:bg-white/20 rounded-full text-white"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="text-lg font-semibold">Law Reels</h1>
-        <div className="w-8" />
+        <h1 className="text-xl font-bold">Law Reels</h1>
+        <div className="w-10" />
       </div>
 
-      {/* Main Card */}
-      <div className="relative h-screen flex items-center justify-center p-4">
-        <Card className={`w-full max-w-sm h-5/6 ${currentFlashCard.color} border-0 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="relative z-10 p-6 h-full flex flex-col justify-between text-white">
-            {/* Category Badge */}
-            <div className="text-center">
-              <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                {currentFlashCard.category}
-              </span>
-            </div>
+      {/* Main Content Area */}
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-sm">
+          {/* Navigation Buttons */}
+          <div className="flex flex-col items-center space-y-4 mb-6">
+            <Button
+              onClick={handlePrevious}
+              variant="ghost"
+              className="p-3 hover:bg-white/20 rounded-full text-white"
+            >
+              <ChevronUp className="w-8 h-8" />
+            </Button>
+          </div>
 
-            {/* Content */}
-            <div className="flex-1 flex flex-col justify-center space-y-6">
-              <h2 className="text-2xl font-bold text-center leading-tight">
-                {currentFlashCard.title}
-              </h2>
-              <p className="text-lg leading-relaxed text-center">
-                {currentFlashCard.content}
-              </p>
-              <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-                <p className="text-sm italic text-center">
-                  💡 {currentFlashCard.fact}
+          {/* Card */}
+          <Card 
+            className={`relative h-96 bg-gradient-to-br ${currentData.color} border-0 shadow-2xl cursor-pointer transform transition-transform duration-300 hover:scale-105`}
+            onClick={() => setIsFlipped(!isFlipped)}
+          >
+            <div className="absolute inset-0 bg-black/20 rounded-lg" />
+            <div className="relative p-6 h-full flex flex-col justify-between text-white">
+              {/* Category Badge */}
+              <div className="flex justify-between items-start">
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-medium backdrop-blur-sm">
+                  {currentData.category}
+                </span>
+                <BookOpen className="w-6 h-6 opacity-80" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 flex flex-col justify-center">
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  {currentData.title}
+                </h2>
+                <p className="text-lg leading-relaxed text-center opacity-90">
+                  {currentData.content}
                 </p>
               </div>
-            </div>
 
-            {/* Progress Indicator */}
-            <div className="text-center">
-              <span className="text-sm opacity-75">
-                {currentCard + 1} of {flashCards.length}
-              </span>
+              {/* Bottom Info */}
+              <div className="flex justify-between items-center">
+                <span className="text-sm opacity-70">
+                  {currentReel + 1} of {lawReelsData.length}
+                </span>
+                <span className="text-sm opacity-70">
+                  Tap to flip
+                </span>
+              </div>
             </div>
+          </Card>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-col items-center space-y-4 mt-6">
+            <Button
+              onClick={handleNext}
+              variant="ghost"
+              className="p-3 hover:bg-white/20 rounded-full text-white"
+            >
+              <ChevronDown className="w-8 h-8" />
+            </Button>
           </div>
-        </Card>
-
-        {/* Navigation Controls */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col space-y-4">
-          <Button
-            onClick={() => handleScroll('up')}
-            disabled={currentCard === 0}
-            variant="ghost"
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 disabled:opacity-30 text-white"
-          >
-            <ChevronUp className="w-6 h-6" />
-          </Button>
-          <Button
-            onClick={() => handleScroll('down')}
-            disabled={currentCard === flashCards.length - 1}
-            variant="ghost"
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 disabled:opacity-30 text-white"
-          >
-            <ChevronDown className="w-6 h-6" />
-          </Button>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="absolute right-4 bottom-20 flex flex-col space-y-4">
-          <Button
-            onClick={toggleLike}
-            variant="ghost"
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 text-white"
-          >
-            <Heart 
-              className={`w-6 h-6 ${likedCards.has(currentCard) ? 'fill-red-500 text-red-500' : ''}`} 
-            />
-          </Button>
-          <Button
-            onClick={toggleBookmark}
-            variant="ghost"
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 text-white"
-          >
-            <Bookmark 
-              className={`w-6 h-6 ${bookmarkedCards.has(currentCard) ? 'fill-yellow-500 text-yellow-500' : ''}`} 
-            />
-          </Button>
-          <Button
-            variant="ghost"
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 text-white"
-          >
-            <Share2 className="w-6 h-6" />
-          </Button>
         </div>
       </div>
 
-      {/* Swipe Hint */}
-      {currentCard === 0 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/70 text-sm text-center animate-pulse">
-          <p>Swipe up/down or use arrow keys</p>
-        </div>
-      )}
+      {/* Progress Indicators */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        {lawReelsData.map((_, index) => (
+          <div
+            key={index}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentReel ? "bg-white" : "bg-white/30"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
