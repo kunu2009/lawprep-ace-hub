@@ -1,4 +1,4 @@
-npm // Centralized data for 7klawprep app
+// Centralized data for 7klawprep app
 
 export const subjects = [
   {
@@ -356,4 +356,4 @@ export const defaultNotes = [
     subject: "Tort Law",
     date: "2024-01-01"
   }
-]; 
+];
